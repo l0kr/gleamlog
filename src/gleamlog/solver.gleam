@@ -1,23 +1,13 @@
 import gleam/dict
 import gleam/list
-import gleam/option.{None, Some, type Option}
+import gleam/option.{type Option, None, Some}
 import gleamlog/builtins/arithmetic
 import gleamlog/builtins/comparison
 import gleamlog/knowledge_base
 import gleamlog/types.{
-  type Clause,
-  type Engine,
-  type PredicateIndicator,
-  type Solution,
-  type Substitution,
-  type Term,
-  Atom,
-  Clause,
-  Compound,
-  Fact,
-  PredicateIndicator,
-  Solution,
-  Var,
+  type Clause, type Engine, type PredicateIndicator, type Solution,
+  type Substitution, type Term, Atom, Clause, Compound, Fact, PredicateIndicator,
+  Solution, Var,
 }
 import gleamlog/unify
 
@@ -93,17 +83,33 @@ fn handle_builtin(
       Some(resolve(rest, kb, sub, counter, depth + 1, max_depth))
     Atom("fail") -> Some([])
     Compound(",", [left, right]) ->
-      Some(resolve([left, right, ..rest], kb, sub, counter, depth + 1, max_depth))
+      Some(resolve(
+        [left, right, ..rest],
+        kb,
+        sub,
+        counter,
+        depth + 1,
+        max_depth,
+      ))
     Compound(";", [left, right]) -> {
-      let left_results = resolve([left, ..rest], kb, sub, counter, depth + 1, max_depth)
-      let right_results = resolve([right, ..rest], kb, sub, counter, depth + 1, max_depth)
+      let left_results =
+        resolve([left, ..rest], kb, sub, counter, depth + 1, max_depth)
+      let right_results =
+        resolve([right, ..rest], kb, sub, counter, depth + 1, max_depth)
       Some(list.append(left_results, right_results))
     }
     Compound("->", [cond, then_]) ->
       case resolve([cond], kb, sub, counter, depth + 1, max_depth) {
         [] -> Some([])
-        [first, .._] ->
-          Some(resolve([then_, ..rest], kb, first, counter, depth + 1, max_depth))
+        [first, ..] ->
+          Some(resolve(
+            [then_, ..rest],
+            kb,
+            first,
+            counter,
+            depth + 1,
+            max_depth,
+          ))
       }
     Compound("\\+", [neg_goal]) ->
       case resolve([neg_goal], kb, sub, counter, depth + 1, max_depth) {
@@ -115,7 +121,8 @@ fn handle_builtin(
     Compound("once", [call_goal]) ->
       case resolve([call_goal], kb, sub, counter, depth + 1, max_depth) {
         [] -> Some([])
-        [first, .._] -> Some(resolve(rest, kb, first, counter, depth + 1, max_depth))
+        [first, ..] ->
+          Some(resolve(rest, kb, first, counter, depth + 1, max_depth))
       }
     Compound("=", [left, right]) ->
       case unify.unify(left, right, sub) {
@@ -138,88 +145,101 @@ fn handle_builtin(
         False -> Some(resolve(rest, kb, sub, counter, depth + 1, max_depth))
       }
     Compound("var", [value]) ->
-      Some(guard_bool(comparison.is_var(value, sub), rest, kb, sub, counter, depth, max_depth))
+      Some(guard_bool(
+        comparison.is_var(value, sub),
+        rest,
+        kb,
+        sub,
+        counter,
+        depth,
+        max_depth,
+      ))
     Compound("nonvar", [value]) ->
-      Some(
-        guard_bool(
-          comparison.is_nonvar(value, sub),
-          rest,
-          kb,
-          sub,
-          counter,
-          depth,
-          max_depth,
-        ),
-      )
+      Some(guard_bool(
+        comparison.is_nonvar(value, sub),
+        rest,
+        kb,
+        sub,
+        counter,
+        depth,
+        max_depth,
+      ))
     Compound("atom", [value]) ->
-      Some(guard_bool(comparison.is_atom(value, sub), rest, kb, sub, counter, depth, max_depth))
+      Some(guard_bool(
+        comparison.is_atom(value, sub),
+        rest,
+        kb,
+        sub,
+        counter,
+        depth,
+        max_depth,
+      ))
     Compound("integer", [value]) ->
-      Some(
-        guard_bool(
-          comparison.is_integer(value, sub),
-          rest,
-          kb,
-          sub,
-          counter,
-          depth,
-          max_depth,
-        ),
-      )
+      Some(guard_bool(
+        comparison.is_integer(value, sub),
+        rest,
+        kb,
+        sub,
+        counter,
+        depth,
+        max_depth,
+      ))
     Compound("float", [value]) ->
-      Some(
-        guard_bool(
-          comparison.is_float(value, sub),
-          rest,
-          kb,
-          sub,
-          counter,
-          depth,
-          max_depth,
-        ),
-      )
+      Some(guard_bool(
+        comparison.is_float(value, sub),
+        rest,
+        kb,
+        sub,
+        counter,
+        depth,
+        max_depth,
+      ))
     Compound("number", [value]) ->
-      Some(
-        guard_bool(
-          comparison.is_number(value, sub),
-          rest,
-          kb,
-          sub,
-          counter,
-          depth,
-          max_depth,
-        ),
-      )
+      Some(guard_bool(
+        comparison.is_number(value, sub),
+        rest,
+        kb,
+        sub,
+        counter,
+        depth,
+        max_depth,
+      ))
     Compound("compound", [value]) ->
-      Some(
-        guard_bool(
-          comparison.is_compound(value, sub),
-          rest,
-          kb,
-          sub,
-          counter,
-          depth,
-          max_depth,
-        ),
-      )
+      Some(guard_bool(
+        comparison.is_compound(value, sub),
+        rest,
+        kb,
+        sub,
+        counter,
+        depth,
+        max_depth,
+      ))
     Compound("atomic", [value]) ->
-      Some(
-        guard_bool(
-          comparison.is_atomic(value, sub),
-          rest,
-          kb,
-          sub,
-          counter,
-          depth,
-          max_depth,
-        ),
-      )
+      Some(guard_bool(
+        comparison.is_atomic(value, sub),
+        rest,
+        kb,
+        sub,
+        counter,
+        depth,
+        max_depth,
+      ))
     Compound("is_list", [value]) ->
-      Some(guard_bool(comparison.is_list(value, sub), rest, kb, sub, counter, depth, max_depth))
+      Some(guard_bool(
+        comparison.is_list(value, sub),
+        rest,
+        kb,
+        sub,
+        counter,
+        depth,
+        max_depth,
+      ))
     Compound("is", [left, expr]) ->
       case arithmetic.eval(expr, sub) {
         Ok(number) ->
           case unify.unify(left, number, sub) {
-            Ok(sub1) -> Some(resolve(rest, kb, sub1, counter, depth + 1, max_depth))
+            Ok(sub1) ->
+              Some(resolve(rest, kb, sub1, counter, depth + 1, max_depth))
             Error(_) -> Some([])
           }
         Error(_) -> Some([])
@@ -229,17 +249,15 @@ fn handle_builtin(
         True ->
           case arithmetic.eval_to_float(left), arithmetic.eval_to_float(right) {
             Ok(a), Ok(b) ->
-              Some(
-                guard_bool(
-                  apply_arithmetic_compare(op, a, b),
-                  rest,
-                  kb,
-                  sub,
-                  counter,
-                  depth,
-                  max_depth,
-                ),
-              )
+              Some(guard_bool(
+                apply_arithmetic_compare(op, a, b),
+                rest,
+                kb,
+                sub,
+                counter,
+                depth,
+                max_depth,
+              ))
             _, _ -> Some([])
           }
         False -> None
@@ -377,7 +395,11 @@ fn rename_term(
           #(Var(name, counter), vars1, counter + 1)
         }
       }
-    Atom(_) | types.Integer(_) | types.Float(_) | types.PrologNil -> #(term, vars, counter)
+    Atom(_) | types.Integer(_) | types.Float(_) | types.PrologNil -> #(
+      term,
+      vars,
+      counter,
+    )
     types.Cons(head, tail) -> {
       let #(head1, vars1, counter1) = rename_term(head, vars, counter)
       let #(tail1, vars2, counter2) = rename_term(tail, vars1, counter1)
@@ -404,7 +426,10 @@ fn collect_from_terms(
   }
 }
 
-fn collect_from_term(term: Term, acc: dict.Dict(String, Int)) -> dict.Dict(String, Int) {
+fn collect_from_term(
+  term: Term,
+  acc: dict.Dict(String, Int),
+) -> dict.Dict(String, Int) {
   case term {
     Var(name, id) ->
       case name == "_" {
@@ -412,7 +437,8 @@ fn collect_from_term(term: Term, acc: dict.Dict(String, Int)) -> dict.Dict(Strin
         False -> dict.insert(acc, name, id)
       }
     Atom(_) | types.Integer(_) | types.Float(_) | types.PrologNil -> acc
-    types.Cons(head, tail) -> collect_from_term(tail, collect_from_term(head, acc))
+    types.Cons(head, tail) ->
+      collect_from_term(tail, collect_from_term(head, acc))
     Compound(_, args) -> collect_from_terms(args, acc)
   }
 }
@@ -432,12 +458,16 @@ fn max_var_id_term(term: Term, current: Int) -> Int {
   case term {
     Var(_, id) -> int_max(current, id)
     Atom(_) | types.Integer(_) | types.Float(_) | types.PrologNil -> current
-    types.Cons(head, tail) -> max_var_id_term(tail, max_var_id_term(head, current))
+    types.Cons(head, tail) ->
+      max_var_id_term(tail, max_var_id_term(head, current))
     Compound(_, args) -> max_var_id_terms(args, current)
   }
 }
 
-fn solution_from_sub(vars: dict.Dict(String, Int), sub: Substitution) -> Solution {
+fn solution_from_sub(
+  vars: dict.Dict(String, Int),
+  sub: Substitution,
+) -> Solution {
   let pairs = dict.to_list(vars)
   let bindings =
     list.fold(pairs, dict.new(), fn(bindings, pair) {

@@ -33,10 +33,8 @@ pub fn univ(term: Term) -> Term {
     Atom(_) | Integer(_) | types.Float(_) | types.Var(_, _) | types.PrologNil -> {
       types.Cons(term, types.PrologNil)
     }
-    Compound(name, args) ->
-      list_to_prolog([Atom(name), ..args])
-    types.Cons(head, tail) ->
-      list_to_prolog([Atom("."), head, tail])
+    Compound(name, args) -> list_to_prolog([Atom(name), ..args])
+    types.Cons(head, tail) -> list_to_prolog([Atom("."), head, tail])
   }
 }
 
@@ -53,7 +51,7 @@ fn list_to_prolog(items: List(Term)) -> Term {
 
 fn nth(items: List(a), index: Int) -> Result(a, Nil) {
   case items, index {
-    [first, .._], 0 -> Ok(first)
+    [first, ..], 0 -> Ok(first)
     [_, ..rest], i if i > 0 -> nth(rest, i - 1)
     _, _ -> Error(Nil)
   }

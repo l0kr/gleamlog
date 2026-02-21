@@ -15,7 +15,8 @@ fn eval_term(term: Term) -> Result(Term, Nil) {
       eval_binary(left, right, fn(a, b) { a -. b }, fn(a, b) { Integer(a - b) })
     Compound("*", [left, right]) ->
       eval_binary(left, right, fn(a, b) { a *. b }, fn(a, b) { Integer(a * b) })
-    Compound("/", [left, right]) -> eval_binary_float(left, right, fn(a, b) { a /. b })
+    Compound("/", [left, right]) ->
+      eval_binary_float(left, right, fn(a, b) { a /. b })
     Compound("//", [left, right]) ->
       case eval_to_float(left), eval_to_float(right) {
         Ok(a), Ok(b) ->

@@ -3,17 +3,8 @@ import gleam/list
 import gleam/string
 import gleamlog/parser/tokenizer
 import gleamlog/types.{
-  type Clause,
-  type Term,
-  Atom,
-  Clause,
-  Compound,
-  Cons,
-  Fact,
-  Float,
-  Integer,
-  PrologNil,
-  Var,
+  type Clause, type Term, Atom, Clause, Compound, Cons, Fact, Float, Integer,
+  PrologNil, Var,
 }
 
 type PositionedToken =
@@ -77,14 +68,19 @@ fn parse_clauses(
   }
 }
 
-fn parse_clause(tokens: List(PositionedToken)) -> Result(#(Clause, List(PositionedToken)), ParseError) {
+fn parse_clause(
+  tokens: List(PositionedToken),
+) -> Result(#(Clause, List(PositionedToken)), ParseError) {
   let ctx = ParseContext(dict.new(), 0)
   case parse_term_no_comma(tokens, ctx) {
     Ok(#(head, rest, ctx1)) ->
       case rest {
         [tokenizer.PositionedToken(tokenizer.Dot, _, _), ..rest1] ->
           Ok(#(Fact(head), rest1))
-        [tokenizer.PositionedToken(tokenizer.OperatorToken(":-"), _, _), ..rest1] ->
+        [
+          tokenizer.PositionedToken(tokenizer.OperatorToken(":-"), _, _),
+          ..rest1
+        ] ->
           case parse_term_with_comma(rest1, ctx1) {
             Ok(#(body, rest2, _)) ->
               case rest2 {
@@ -100,7 +96,10 @@ fn parse_clause(tokens: List(PositionedToken)) -> Result(#(Clause, List(Position
   }
 }
 
-fn expect_eof(tokens: List(PositionedToken), term: Term) -> Result(Term, ParseError) {
+fn expect_eof(
+  tokens: List(PositionedToken),
+  term: Term,
+) -> Result(Term, ParseError) {
   case tokens {
     [tokenizer.PositionedToken(tokenizer.Eof, _, _)] -> Ok(term)
     _ -> Error(error_here("Unexpected tokens after term", tokens))
@@ -147,7 +146,10 @@ fn parse_arrow(
   case parse_comma(tokens, ctx) {
     Ok(#(left, rest, ctx1)) ->
       case rest {
-        [tokenizer.PositionedToken(tokenizer.OperatorToken("->"), _, _), ..rest1] ->
+        [
+          tokenizer.PositionedToken(tokenizer.OperatorToken("->"), _, _),
+          ..rest1
+        ] ->
           case parse_arrow(rest1, ctx1) {
             Ok(#(right, rest2, ctx2)) ->
               Ok(#(Compound("->", [left, right]), rest2, ctx2))
@@ -274,7 +276,10 @@ fn parse_pow(
   case parse_prefix(tokens, ctx) {
     Ok(#(left, rest, ctx1)) ->
       case rest {
-        [tokenizer.PositionedToken(tokenizer.OperatorToken("**"), _, _), ..rest1] ->
+        [
+          tokenizer.PositionedToken(tokenizer.OperatorToken("**"), _, _),
+          ..rest1
+        ] ->
           case parse_prefix(rest1, ctx1) {
             Ok(#(right, rest2, ctx2)) ->
               Ok(#(Compound("**", [left, right]), rest2, ctx2))
@@ -347,7 +352,8 @@ fn parse_primary(
           case rest1 {
             [tokenizer.PositionedToken(tokenizer.RParen, _, _), ..rest2] ->
               Ok(#(term, rest2, ctx1))
-            _ -> Error(error_here("Expected ')' after parenthesized term", rest1))
+            _ ->
+              Error(error_here("Expected ')' after parenthesized term", rest1))
           }
         Error(error) -> Error(error)
       }
@@ -362,7 +368,8 @@ fn parse_args(
   ctx: ParseContext,
 ) -> Result(#(List(Term), List(PositionedToken), ParseContext), ParseError) {
   case tokens {
-    [tokenizer.PositionedToken(tokenizer.RParen, _, _), .._] -> Ok(#([], tokens, ctx))
+    [tokenizer.PositionedToken(tokenizer.RParen, _, _), ..] ->
+      Ok(#([], tokens, ctx))
     _ ->
       case parse_term_no_comma(tokens, ctx) {
         Ok(#(arg, rest, ctx1)) -> parse_args_tail([arg], rest, ctx1)
@@ -445,7 +452,10 @@ fn flatten_conjunction(term: Term) -> List(Term) {
 
 fn var_for(name: String, ctx: ParseContext) -> #(Term, ParseContext) {
   case ctx, name {
-    ParseContext(vars, next_id), "_" -> #(Var(name, next_id), ParseContext(vars, next_id + 1))
+    ParseContext(vars, next_id), "_" -> #(
+      Var(name, next_id),
+      ParseContext(vars, next_id + 1),
+    )
     ParseContext(vars, next_id), _ ->
       case dict.get(vars, name) {
         Ok(id) -> #(Var(name, id), ctx)
@@ -490,7 +500,8 @@ fn is_mul_op(op: String) -> Bool {
 
 fn error_here(message: String, tokens: List(PositionedToken)) -> ParseError {
   case tokens {
-    [tokenizer.PositionedToken(_, line, col), .._] -> ParseError(message, line, col)
+    [tokenizer.PositionedToken(_, line, col), ..] ->
+      ParseError(message, line, col)
     [] -> ParseError(message, 0, 0)
   }
 }

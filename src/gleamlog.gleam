@@ -4,8 +4,8 @@ import gleamlog/knowledge_base
 import gleamlog/parser/parser
 import gleamlog/solver
 import gleamlog/types.{
-  type Clause, type Engine, type PredicateIndicator, type Solution, type Term, DQAtom, Engine, PredicateIndicator,
-  PrologFlags,
+  type Clause, type Engine, type PredicateIndicator, type Solution, type Term,
+  DQAtom, Engine, PredicateIndicator, PrologFlags,
 }
 
 /// Create a new Prolog engine with default settings
@@ -28,7 +28,12 @@ pub fn consult_string(engine: Engine, source: String) -> Engine {
       list.fold(clauses, engine, fn(engine, clause) {
         case clause_indicator(clause) {
           Ok(indicator) -> {
-            let kb = knowledge_base.add_clause(engine.knowledge_base, indicator, clause)
+            let kb =
+              knowledge_base.add_clause(
+                engine.knowledge_base,
+                indicator,
+                clause,
+              )
             Engine(..engine, knowledge_base: kb)
           }
           Error(_) -> engine
@@ -56,7 +61,8 @@ fn clause_indicator(clause: Clause) -> Result(PredicateIndicator, Nil) {
 fn term_indicator(term: Term) -> Result(PredicateIndicator, Nil) {
   case term {
     types.Atom(name) -> Ok(PredicateIndicator(name, 0))
-    types.Compound(name, args) -> Ok(PredicateIndicator(name, list.length(args)))
+    types.Compound(name, args) ->
+      Ok(PredicateIndicator(name, list.length(args)))
     _ -> Error(Nil)
   }
 }

@@ -106,6 +106,7 @@ fn unify_args(
         Ok(sub2) -> unify_args(rest1, rest2, sub2)
         Error(e) -> Error(e)
       }
-    _, _ -> Error(UnificationFailure(Atom("arity_mismatch"), Atom("arity_mismatch")))
+    _, _ ->
+      Error(UnificationFailure(Atom("arity_mismatch"), Atom("arity_mismatch")))
   }
 }

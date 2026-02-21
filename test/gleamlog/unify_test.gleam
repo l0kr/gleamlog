@@ -82,8 +82,7 @@ pub fn unify_identical_atoms_test() {
 pub fn unify_different_atoms_test() {
   let sub = substitution.new()
   let result = unify.unify(Atom("a"), Atom("b"), sub)
-  assert result
-    == Error(types.UnificationFailure(Atom("a"), Atom("b")))
+  assert result == Error(types.UnificationFailure(Atom("a"), Atom("b")))
 }
 
 // unify(42, 42) → success
@@ -96,8 +95,7 @@ pub fn unify_identical_integers_test() {
 pub fn unify_different_integers_test() {
   let sub = substitution.new()
   let result = unify.unify(Integer(42), Integer(99), sub)
-  assert result
-    == Error(types.UnificationFailure(Integer(42), Integer(99)))
+  assert result == Error(types.UnificationFailure(Integer(42), Integer(99)))
 }
 
 // unify(3.14, 3.14) → success
@@ -148,8 +146,7 @@ pub fn unify_repeated_var_conflict_test() {
   let t1 = Compound("f", [Var("X", 0), Var("X", 0)])
   let t2 = Compound("f", [Atom("a"), Atom("b")])
   let result = unify.unify(t1, t2, sub)
-  assert result
-    == Error(types.UnificationFailure(Atom("a"), Atom("b")))
+  assert result == Error(types.UnificationFailure(Atom("a"), Atom("b")))
 }
 
 // unify(X, f(X)) with occurs check → Error
@@ -189,8 +186,7 @@ pub fn unify_empty_lists_test() {
 pub fn unify_list_cons_test() {
   let sub = substitution.new()
   let t1 = Cons(Var("H", 0), Var("T", 1))
-  let t2 =
-    Cons(Integer(1), Cons(Integer(2), Cons(Integer(3), PrologNil)))
+  let t2 = Cons(Integer(1), Cons(Integer(2), Cons(Integer(3), PrologNil)))
   let result = unify.unify(t1, t2, sub)
   let expected =
     substitution.new()
@@ -212,8 +208,7 @@ pub fn unify_different_lists_test() {
   let t1 = Cons(Integer(1), Cons(Integer(2), PrologNil))
   let t2 = Cons(Integer(1), Cons(Integer(3), PrologNil))
   let result = unify.unify(t1, t2, sub)
-  assert result
-    == Error(types.UnificationFailure(Integer(2), Integer(3)))
+  assert result == Error(types.UnificationFailure(Integer(2), Integer(3)))
 }
 
 // Nested compound: unify(f(g(X)), f(g(a))) → {X → a}
@@ -238,8 +233,7 @@ pub fn unify_transitive_test() {
 pub fn unify_type_mismatch_test() {
   let sub = substitution.new()
   let result = unify.unify(Atom("a"), Integer(42), sub)
-  assert result
-    == Error(types.UnificationFailure(Atom("a"), Integer(42)))
+  assert result == Error(types.UnificationFailure(Atom("a"), Integer(42)))
 }
 
 // Deep occurs check: unify(X, f(g(X))) → Error

@@ -40,18 +40,16 @@ pub fn clause_construction_test() {
 
   // Rule: grandparent(X, Z) :- parent(X, Y), parent(Y, Z).
   let rule =
-    Clause(
-      head: Compound("grandparent", [Var("X", 0), Var("Z", 2)]),
-      body: [
-        Compound("parent", [Var("X", 0), Var("Y", 1)]),
-        Compound("parent", [Var("Y", 1), Var("Z", 2)]),
-      ],
-    )
+    Clause(head: Compound("grandparent", [Var("X", 0), Var("Z", 2)]), body: [
+      Compound("parent", [Var("X", 0), Var("Y", 1)]),
+      Compound("parent", [Var("Y", 1), Var("Z", 2)]),
+    ])
   assert rule.head == Compound("grandparent", [Var("X", 0), Var("Z", 2)])
-  assert rule.body == [
-    Compound("parent", [Var("X", 0), Var("Y", 1)]),
-    Compound("parent", [Var("Y", 1), Var("Z", 2)]),
-  ]
+  assert rule.body
+    == [
+      Compound("parent", [Var("X", 0), Var("Y", 1)]),
+      Compound("parent", [Var("Y", 1), Var("Z", 2)]),
+    ]
 }
 
 pub fn predicate_indicator_test() {

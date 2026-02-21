@@ -1,14 +1,7 @@
 import gleam/dict
 import gleamlog/types.{
-  type Clause,
-  type KnowledgeBase,
-  type PredicateIndicator,
-  type Term,
-  Atom,
-  Clause,
-  Compound,
-  Fact,
-  KnowledgeBase,
+  type Clause, type KnowledgeBase, type PredicateIndicator, type Term, Atom,
+  Clause, Compound, Fact, KnowledgeBase,
 }
 
 /// Create an empty knowledge base
@@ -26,7 +19,8 @@ pub fn add_clause(
     Ok(clauses) -> clauses
     Error(_) -> []
   }
-  let updated = dict.insert(kb.clauses, indicator, list_append(existing, clause))
+  let updated =
+    dict.insert(kb.clauses, indicator, list_append(existing, clause))
   KnowledgeBase(clauses: updated)
 }
 
@@ -41,20 +35,14 @@ pub fn get_clauses(
   }
 }
 
-pub fn assertz(
-  kb: KnowledgeBase,
-  clause: Clause,
-) -> Result(KnowledgeBase, Nil) {
+pub fn assertz(kb: KnowledgeBase, clause: Clause) -> Result(KnowledgeBase, Nil) {
   case clause_indicator(clause) {
     Ok(indicator) -> Ok(add_clause(kb, indicator, clause))
     Error(_) -> Error(Nil)
   }
 }
 
-pub fn asserta(
-  kb: KnowledgeBase,
-  clause: Clause,
-) -> Result(KnowledgeBase, Nil) {
+pub fn asserta(kb: KnowledgeBase, clause: Clause) -> Result(KnowledgeBase, Nil) {
   case clause_indicator(clause) {
     Ok(indicator) -> {
       let existing = get_clauses(kb, indicator)
@@ -117,7 +105,8 @@ fn clause_indicator(clause: Clause) -> Result(PredicateIndicator, Nil) {
 fn term_indicator(term: Term) -> Result(PredicateIndicator, Nil) {
   case term {
     Atom(name) -> Ok(types.PredicateIndicator(name, 0))
-    Compound(name, args) -> Ok(types.PredicateIndicator(name, list_length(args)))
+    Compound(name, args) ->
+      Ok(types.PredicateIndicator(name, list_length(args)))
     _ -> Error(Nil)
   }
 }

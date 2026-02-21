@@ -1,8 +1,10 @@
-import gleam/io
 import gleam/int
+import gleam/io
 import gleam/list
 import gleam/string
-import gleamlog/types.{type Term, Atom, Compound, Cons, Float, Integer, PrologNil, Var}
+import gleamlog/types.{
+  type Term, Atom, Compound, Cons, Float, Integer, PrologNil, Var,
+}
 
 pub fn write(term: Term) -> Nil {
   io.print(render(term))

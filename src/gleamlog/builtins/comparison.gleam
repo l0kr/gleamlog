@@ -1,4 +1,6 @@
-import gleamlog/types.{type Term, Atom, Compound, Cons, Float, Integer, PrologNil, Var}
+import gleamlog/types.{
+  type Term, Atom, Compound, Cons, Float, Integer, PrologNil, Var,
+}
 import gleamlog/unify
 
 pub fn is_var(term: Term, sub: types.Substitution) -> Bool {

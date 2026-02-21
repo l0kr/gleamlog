@@ -46,7 +46,8 @@ fn lex(
           case char {
             "%" -> {
               let #(line1, col1) = advance(line, col, "%")
-              let #(rest1, line2, col2) = consume_line_comment(rest, line1, col1)
+              let #(rest1, line2, col2) =
+                consume_line_comment(rest, line1, col1)
               lex(rest1, line2, col2, acc)
             }
             "/" ->
@@ -61,35 +62,51 @@ fn lex(
                 }
                 _ -> lex_operator(chars, line, col, acc)
               }
-            "(" -> lex(rest, line, col + 1, [PositionedToken(LParen, line, col), ..acc])
-            ")" -> lex(rest, line, col + 1, [PositionedToken(RParen, line, col), ..acc])
+            "(" ->
+              lex(rest, line, col + 1, [
+                PositionedToken(LParen, line, col),
+                ..acc
+              ])
+            ")" ->
+              lex(rest, line, col + 1, [
+                PositionedToken(RParen, line, col),
+                ..acc
+              ])
             "[" ->
-              lex(rest, line, col + 1, [PositionedToken(LBracket, line, col), ..acc])
+              lex(rest, line, col + 1, [
+                PositionedToken(LBracket, line, col),
+                ..acc
+              ])
             "]" ->
-              lex(rest, line, col + 1, [PositionedToken(RBracket, line, col), ..acc])
-            "," -> lex(rest, line, col + 1, [PositionedToken(Comma, line, col), ..acc])
-            "|" -> lex(rest, line, col + 1, [PositionedToken(Pipe, line, col), ..acc])
-            "." -> lex(rest, line, col + 1, [PositionedToken(Dot, line, col), ..acc])
+              lex(rest, line, col + 1, [
+                PositionedToken(RBracket, line, col),
+                ..acc
+              ])
+            "," ->
+              lex(rest, line, col + 1, [
+                PositionedToken(Comma, line, col),
+                ..acc
+              ])
+            "|" ->
+              lex(rest, line, col + 1, [PositionedToken(Pipe, line, col), ..acc])
+            "." ->
+              lex(rest, line, col + 1, [PositionedToken(Dot, line, col), ..acc])
             "'" ->
               case read_quoted(rest, "'", [], 0) {
                 Ok(#(value, rest1, consumed)) ->
-                  lex(
-                    rest1,
-                    line,
-                    col + consumed + 1,
-                    [PositionedToken(AtomToken(value), line, col), ..acc],
-                  )
+                  lex(rest1, line, col + consumed + 1, [
+                    PositionedToken(AtomToken(value), line, col),
+                    ..acc
+                  ])
                 Error(message) -> Error(message)
               }
             "\"" ->
               case read_quoted(rest, "\"", [], 0) {
                 Ok(#(value, rest1, consumed)) ->
-                  lex(
-                    rest1,
-                    line,
-                    col + consumed + 1,
-                    [PositionedToken(StringToken(value), line, col), ..acc],
-                  )
+                  lex(rest1, line, col + consumed + 1, [
+                    PositionedToken(StringToken(value), line, col),
+                    ..acc
+                  ])
                 Error(message) -> Error(message)
               }
             _ ->
@@ -107,11 +124,11 @@ fn lex(
                             False ->
                               Error(
                                 "Unexpected character "
-                                  <> char
-                                  <> " at "
-                                  <> int.to_string(line)
-                                  <> ":"
-                                  <> int.to_string(col),
+                                <> char
+                                <> " at "
+                                <> int.to_string(line)
+                                <> ":"
+                                <> int.to_string(col),
                               )
                           }
                       }
@@ -130,70 +147,64 @@ fn lex_number(
   col: Int,
   acc: List(PositionedToken),
 ) -> Result(List(PositionedToken), String) {
-  let #(digits, rest1, consumed_digits) =
-    read_while(rest, is_digit, [first], 1)
+  let #(digits, rest1, consumed_digits) = read_while(rest, is_digit, [first], 1)
   case rest1 {
     [".", next, ..rest2] ->
       case is_digit(next) {
         True -> {
-          let #(frac, rest3, consumed_frac) = read_while(rest2, is_digit, [next], 1)
+          let #(frac, rest3, consumed_frac) =
+            read_while(rest2, is_digit, [next], 1)
           let text = digits <> "." <> frac
           case float.parse(text) {
             Ok(value) ->
-              lex(
-                rest3,
-                line,
-                col + consumed_digits + consumed_frac + 1,
-                [PositionedToken(FloatToken(value), line, col), ..acc],
-              )
+              lex(rest3, line, col + consumed_digits + consumed_frac + 1, [
+                PositionedToken(FloatToken(value), line, col),
+                ..acc
+              ])
             Error(_) ->
               Error(
                 "Invalid float "
-                  <> text
-                  <> " at "
-                  <> int.to_string(line)
-                  <> ":"
-                  <> int.to_string(col),
+                <> text
+                <> " at "
+                <> int.to_string(line)
+                <> ":"
+                <> int.to_string(col),
               )
           }
         }
         False ->
           case int.parse(digits) {
             Ok(value) ->
-              lex(
-                rest1,
-                line,
-                col + consumed_digits,
-                [PositionedToken(IntToken(value), line, col), ..acc],
-              )
+              lex(rest1, line, col + consumed_digits, [
+                PositionedToken(IntToken(value), line, col),
+                ..acc
+              ])
             Error(_) ->
               Error(
                 "Invalid integer "
-                  <> digits
-                  <> " at "
-                  <> int.to_string(line)
-                  <> ":"
-                  <> int.to_string(col),
+                <> digits
+                <> " at "
+                <> int.to_string(line)
+                <> ":"
+                <> int.to_string(col),
               )
           }
       }
     _ ->
       case int.parse(digits) {
         Ok(value) ->
-          lex(
-            rest1,
-            line,
-            col + consumed_digits,
-            [PositionedToken(IntToken(value), line, col), ..acc],
-          )
+          lex(rest1, line, col + consumed_digits, [
+            PositionedToken(IntToken(value), line, col),
+            ..acc
+          ])
         Error(_) ->
           Error(
             "Invalid integer "
-              <> digits
-              <> " at "
-              <> int.to_string(line)
-              <> ":"
-              <> int.to_string(col),
+            <> digits
+            <> " at "
+            <> int.to_string(line)
+            <> ":"
+            <> int.to_string(col),
           )
       }
   }
@@ -209,19 +220,15 @@ fn lex_atom(
   let #(name, rest1, consumed) = read_while(rest, is_ident_continue, [first], 1)
   case is_word_operator(name) {
     True ->
-      lex(
-        rest1,
-        line,
-        col + consumed,
-        [PositionedToken(OperatorToken(name), line, col), ..acc],
-      )
+      lex(rest1, line, col + consumed, [
+        PositionedToken(OperatorToken(name), line, col),
+        ..acc
+      ])
     False ->
-      lex(
-        rest1,
-        line,
-        col + consumed,
-        [PositionedToken(AtomToken(name), line, col), ..acc],
-      )
+      lex(rest1, line, col + consumed, [
+        PositionedToken(AtomToken(name), line, col),
+        ..acc
+      ])
   }
 }
 
@@ -233,12 +240,10 @@ fn lex_var(
   acc: List(PositionedToken),
 ) -> Result(List(PositionedToken), String) {
   let #(name, rest1, consumed) = read_while(rest, is_ident_continue, [first], 1)
-  lex(
-    rest1,
-    line,
-    col + consumed,
-    [PositionedToken(VarToken(name), line, col), ..acc],
-  )
+  lex(rest1, line, col + consumed, [
+    PositionedToken(VarToken(name), line, col),
+    ..acc
+  ])
 }
 
 fn lex_operator(
@@ -252,17 +257,15 @@ fn lex_operator(
     "" ->
       Error(
         "Unexpected character at "
-          <> int.to_string(line)
-          <> ":"
-          <> int.to_string(col),
+        <> int.to_string(line)
+        <> ":"
+        <> int.to_string(col),
       )
     _ ->
-      lex(
-        rest,
-        line,
-        col + consumed,
-        [PositionedToken(OperatorToken(op), line, col), ..acc],
-      )
+      lex(rest, line, col + consumed, [
+        PositionedToken(OperatorToken(op), line, col),
+        ..acc
+      ])
   }
 }
 

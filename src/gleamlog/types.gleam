@@ -65,20 +65,12 @@ pub type KnowledgeBase {
 
 /// Engine state
 pub type Engine {
-  Engine(
-    knowledge_base: KnowledgeBase,
-    var_counter: Int,
-    flags: PrologFlags,
-  )
+  Engine(knowledge_base: KnowledgeBase, var_counter: Int, flags: PrologFlags)
 }
 
 /// Prolog system flags
 pub type PrologFlags {
-  PrologFlags(
-    max_depth: Int,
-    occurs_check: Bool,
-    double_quotes: DoubleQuotes,
-  )
+  PrologFlags(max_depth: Int, occurs_check: Bool, double_quotes: DoubleQuotes)
 }
 
 /// How double-quoted strings are interpreted
